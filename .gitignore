@@ -119,6 +119,9 @@ jspm_packages/
 *.swo
 *~
 
+node_modules/
+dist/
+
 # OS generated files
 .DS_Store
 .DS_Store?

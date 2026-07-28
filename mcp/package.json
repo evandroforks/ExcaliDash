@@ -1,0 +1,20 @@
+{
+  "name": "excalidash-mcp",
+  "version": "1.0.0",
+  "description": "MCP server to save Excalidraw diagrams into a self-hosted ExcaliDash instance",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js --stdio",
+    "dev": "tsx src/index.ts --stdio"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}
