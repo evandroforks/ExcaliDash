@@ -8,7 +8,6 @@ services:
       - PORT=8000
       - NODE_ENV=production
       - AUTH_MODE=${AUTH_MODE:-local}
-      - FRONTEND_URL=http://172.28.50.156:6767
       # Keep disabled by default; only enable when a trusted proxy sanitizes forwarded headers.
       - TRUST_PROXY=false
       # Optional for single-instance deployments:
@@ -23,7 +22,7 @@ services:
       # - OIDC_CLIENT_SECRET=your-client-secret
       # - OIDC_REDIRECT_URI=https://excalidash.example.com/api/auth/oidc/callback
     volumes:
-      - ./data:/app/prisma
+      - backend-data:/app/prisma
     networks:
       - excalidash-network
     restart: unless-stopped
@@ -68,3 +67,6 @@ services:
 networks:
   excalidash-network:
     driver: bridge
+
+volumes:
+  backend-data:

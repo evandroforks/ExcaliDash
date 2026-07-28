@@ -17,6 +17,7 @@ services:
       # Recommended to set explicitly for portability and multi-instance setups.
       - JWT_SECRET=${JWT_SECRET}
       - CSRF_SECRET=${CSRF_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
       # # Local OIDC settings for dev compose.
       # - OIDC_PROVIDER_NAME=Keycloak
       # # Browser-facing issuer URL.
@@ -31,7 +32,7 @@ services:
       # - OIDC_SCOPES=openid profile email
       # - OIDC_ADMIN_GROUPS=admins
     volumes:
-      - backend-data:/app/prisma
+      - ./data:/app/prisma
     networks:
       - excalidash-network
     restart: unless-stopped
@@ -82,6 +83,3 @@ services:
 networks:
   excalidash-network:
     driver: bridge
-
-volumes:
-  backend-data:
