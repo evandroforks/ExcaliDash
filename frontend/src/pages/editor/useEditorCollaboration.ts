@@ -80,33 +80,36 @@ export const useEditorCollaboration = ({
       (window as any).__EXCALIDASH_SOCKET_STATUS__ = {
         connected: socket.connected,
       };
-      socket.on("connect", () => {
-        (window as any).__EXCALIDASH_SOCKET_STATUS__ = { connected: true };
-      });
       socket.on("disconnect", () => {
         (window as any).__EXCALIDASH_SOCKET_STATUS__ = { connected: false };
       });
     }
-    socket.emit("join-room", { drawingId, user: me }, (payload: any) => {
-      const serverUser = payload?.user;
-      if (!serverUser || typeof serverUser.id !== "string") return;
-      const next: UserIdentity = {
-        id: serverUser.id,
-        name: typeof serverUser.name === "string" ? serverUser.name : me.name,
-        initials:
-          typeof serverUser.initials === "string"
-            ? serverUser.initials
-            : me.initials,
-        color:
-          typeof serverUser.color === "string" ? serverUser.color : me.color,
-      };
-      socketMeRef.current = next;
-      setSocketMe(next);
-      const lastUsers = lastPresenceUsersRef.current;
-      if (lastUsers) {
-        setPeers(lastUsers.filter((u) => u.id !== next.id));
+    const joinRoom = () => {
+      if (import.meta.env.DEV) {
+        (window as any).__EXCALIDASH_SOCKET_STATUS__ = { connected: true };
       }
-    });
+      socket.emit("join-room", { drawingId, user: me }, (payload: any) => {
+        const serverUser = payload?.user;
+        if (!serverUser || typeof serverUser.id !== "string") return;
+        const next: UserIdentity = {
+          id: serverUser.id,
+          name: typeof serverUser.name === "string" ? serverUser.name : me.name,
+          initials:
+            typeof serverUser.initials === "string"
+              ? serverUser.initials
+              : me.initials,
+          color:
+            typeof serverUser.color === "string" ? serverUser.color : me.color,
+        };
+        socketMeRef.current = next;
+        setSocketMe(next);
+        const lastUsers = lastPresenceUsersRef.current;
+        if (lastUsers) {
+          setPeers(lastUsers.filter((u) => u.id !== next.id));
+        }
+      });
+    };
+    socket.on("connect", joinRoom);
     const renderLoop = () => {
       if (cursorBuffer.current.size > 0 && excalidrawAPI.current) {
         const collaborators = new Map<string, any>(
@@ -327,6 +330,8 @@ export const useEditorCollaboration = ({
       window.removeEventListener("blur", onBlur);
       document.removeEventListener("mouseenter", onMouseEnter);
       document.removeEventListener("mouseleave", onMouseLeave);
+      socket.off("connect");
+      socket.off("disconnect");
       socket.off("presence-update");
       socket.off("error");
       socket.off("cursor-move");
