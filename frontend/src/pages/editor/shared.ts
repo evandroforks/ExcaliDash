@@ -76,6 +76,10 @@ export const getPersistedAppState = (appState: Record<string, any> | null | unde
   };
   if (appState?.gridStep != null) base.gridStep = appState.gridStep;
   if (appState?.gridModeEnabled != null) base.gridModeEnabled = appState.gridModeEnabled;
+  if (appState?.theme != null) base.theme = appState.theme;
+  if (appState?.scrollX != null) base.scrollX = appState.scrollX;
+  if (appState?.scrollY != null) base.scrollY = appState.scrollY;
+  if (appState?.zoom != null) base.zoom = appState.zoom;
   return base;
 };
 

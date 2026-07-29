@@ -355,7 +355,7 @@ export const Editor: React.FC = () => {
         me={me}
         newName={newName}
         peers={peers}
-        theme={theme}
+        theme={initialData?.appState?.theme ?? theme}
         onBackClick={handleBackClick}
         onCanvasChange={handleCanvasChange}
         onCanvasDropCapture={handleCanvasDropCapture}

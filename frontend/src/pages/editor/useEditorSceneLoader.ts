@@ -148,13 +148,19 @@ export const useEditorSceneLoader = ({
         const hydratedAppState = {
           ...persistedAppState,
           collaborators: new Map(),
+          activeTool: {
+            type: "hand",
+            customType: null,
+            locked: false,
+            lastActiveTool: null,
+          },
         };
         refs.latestAppState.current = hydratedAppState;
         setInitialData({
           elements,
           appState: hydratedAppState,
           files,
-          scrollToContent: true,
+          scrollToContent: !persistedAppState.zoom,
           libraryItems,
         });
       } catch (err) {
