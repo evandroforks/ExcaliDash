@@ -16,9 +16,12 @@ update diagrams directly from a conversation.
 cd mcp
 npm install
 npm run build        # compiles TypeScript → dist/index.js
+npm link             # registers the excalidash-mcp command locally
 ```
 
 The compiled entry point is `dist/index.js`. Rebuild whenever `src/index.ts` changes.
+Run `npm link` again if the clone is moved. Ensure npm's global bin directory is in
+your `PATH` before configuring an MCP client to use `excalidash-mcp`.
 
 ## Environment variables
 
@@ -43,8 +46,8 @@ Add both servers to the `mcpServers` key inside `~/.claude.json`.
 {
   "mcpServers": {
     "excalidash": {
-      "command": "node",
-      "args": ["/absolute/path/to/ExcaliDash/mcp/dist/index.js", "--stdio"],
+      "command": "excalidash-mcp",
+      "args": ["--stdio"],
       "env": {
         "EXCALIDASH_URL": "http://<host>:<port>",
         "EXCALIDASH_API_KEY": "<your-api-key>"

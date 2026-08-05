@@ -4,6 +4,9 @@
   "description": "MCP server to save Excalidraw diagrams into a self-hosted ExcaliDash instance",
   "type": "module",
   "main": "dist/index.js",
+  "bin": {
+    "excalidash-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js --stdio",
