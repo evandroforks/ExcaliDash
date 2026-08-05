@@ -126,6 +126,37 @@ cd backend
 npm run oidc:doctor
 ```
 
+### Google OIDC deployment
+
+Google can be used as the OIDC provider. Create a Google Cloud OAuth client of
+type **Web application**, configure the consent screen and audience, and add
+the exact ExcaliDash callback URL as an authorized redirect URI:
+
+```text
+https://<excalidash-host>/api/auth/oidc/callback
+```
+
+Use `AUTH_MODE=hybrid` during rollout so a local administrator can still sign
+in while the OIDC flow is tested. Move to `oidc_enforced` only after a Google
+sign-in succeeds.
+
+Store the Google client ID and secret in the deployment `.env` file, alongside
+the standard OIDC settings above. Set the provider name to `Google`, use
+`https://accounts.google.com` as the issuer, and configure the token endpoint
+authentication method as `client_secret_post`.
+
+The image-based Compose template leaves OIDC environment mappings commented
+out. Defining values in `.env` alone does not make them available to the
+backend: uncomment or add the matching `OIDC_*` environment mappings under the
+`backend` service before restarting it. Keep the `.env` file private and out
+of version control.
+
+After deployment, request `/api/auth/status` through the public HTTPS URL. A
+successful Google configuration reports an enabled OIDC provider, and
+`/api/auth/oidc/start` responds with a redirect to Google. If the Google
+application remains in testing, add the intended accounts as test users in
+Google Auth Platform before attempting sign-in.
+
 Provider-specific env templates for existing IdPs:
 
 - `backend/.env.oidc.keycloak.example`
