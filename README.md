@@ -182,6 +182,111 @@ docker compose up -d
 
 </details>
 
+<details>
+<summary>Remote deployment without source code (custom images)</summary>
+
+## Remote Deployment Without Source Code
+
+Use this flow when the build machine has the repository, but the deployment host
+must contain only Docker, Compose, configuration, and persistent data. The
+application source code is included in the images; it is not copied to the
+deployment host.
+
+Build and tag immutable images on the build machine. Build for the same CPU
+architecture as the deployment host.
+
+```bash
+export EXCALIDASH_TAG=0.5.1-custom.1
+
+docker build -t excalidash-backend:$EXCALIDASH_TAG backend
+docker build -f frontend/Dockerfile -t excalidash-frontend:$EXCALIDASH_TAG .
+```
+
+If you have a container registry, push the two tagged images and pull them on
+the deployment host. Without a registry, transfer the images directly over SSH:
+
+```bash
+docker save \
+  excalidash-backend:$EXCALIDASH_TAG \
+  excalidash-frontend:$EXCALIDASH_TAG \
+  | gzip -1 \
+  | ssh deploy-host 'gzip -d | docker load'
+```
+
+Create the deployment directory and copy only the Compose file to the deployment
+host:
+
+```bash
+ssh deploy-host 'mkdir -p /root/ExcaliDash'
+scp docker-compose.prod.yml deploy-host:/root/ExcaliDash/docker-compose.yml
+```
+
+Edit the copied file as follows:
+
+```yaml
+services:
+  backend:
+    image: excalidash-backend:0.5.1-custom.1
+    volumes:
+      - ./data:/app/prisma
+
+  frontend:
+    image: excalidash-frontend:0.5.1-custom.1
+```
+
+Remove the top-level `volumes: backend-data:` declaration from that copied file.
+The `./data` bind mount keeps the SQLite database and persisted secrets in
+`/root/ExcaliDash/data`, which makes host-level backups straightforward.
+
+Create `/root/ExcaliDash/.env` with permissions restricted to the deploy user:
+
+```env
+FRONTEND_URL=https://excalidash.example.com
+AUTH_MODE=local
+TRUST_PROXY=false
+JWT_SECRET=replace-with-a-long-fixed-random-secret
+CSRF_SECRET=replace-with-another-long-fixed-random-secret
+# Optional: leave empty to disable AI/Text-to-Diagram without a Compose warning.
+AI_BASE_URL=https://openrouter.ai/api/v1
+AI_MODEL=anthropic/claude-sonnet-4-6
+```
+
+Generate secrets with `openssl rand -hex 32` (JWT) and `openssl rand -base64 32`
+(CSRF). `FRONTEND_URL` must exactly match the browser-facing URL, including its
+protocol and port. If a trusted reverse proxy is in use, set `TRUST_PROXY` to
+the correct positive hop count.
+
+Start the deployment:
+
+```bash
+cd /root/ExcaliDash
+mkdir -p data
+chmod 600 .env
+docker compose -f docker-compose.yml up -d
+docker compose -f docker-compose.yml ps
+```
+
+For a later release, build and transfer/pull new immutable image tags, update
+both `image:` values in the host Compose file, then run `docker compose up -d`
+again. Do not run `docker compose pull` when using images transferred with
+`docker load` and local-only image names.
+
+Back up the application data by briefly stopping the backend, archiving the
+`data` directory, then starting it again. This avoids copying a SQLite database
+while it is being written:
+
+```bash
+cd /root/ExcaliDash
+docker compose stop backend
+tar -C . -czf excalidash-data-$(date +%F).tar.gz data
+docker compose up -d backend
+```
+
+If your host runs a standalone Compose V2 binary under another name, substitute
+that command for `docker compose` in the commands above.
+
+</details>
+
 ## Advanced
 
 The root README keeps the install path short. See
