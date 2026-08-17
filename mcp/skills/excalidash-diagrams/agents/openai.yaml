@@ -1,0 +1,4 @@
+interface:
+  display_name: "ExcaliDash diagrams"
+  short_description: "Create and save editable technical diagrams"
+  default_prompt: "Use $excalidash-diagrams to create and save an editable diagram from this description."

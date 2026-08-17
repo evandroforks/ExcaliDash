@@ -3,12 +3,25 @@
   "version": "1.0.0",
   "description": "MCP server to save Excalidraw diagrams into a self-hosted ExcaliDash instance",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "main": "dist/index.js",
   "bin": {
     "excalidash-mcp": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "skills",
+    "scripts/manage-skill-links.mjs",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
+    "postinstall": "node scripts/manage-skill-links.mjs install",
+    "install-skill": "node scripts/manage-skill-links.mjs install",
+    "uninstall-skill": "node scripts/manage-skill-links.mjs remove",
     "start": "node dist/index.js --stdio",
     "dev": "tsx src/index.ts --stdio"
   },
