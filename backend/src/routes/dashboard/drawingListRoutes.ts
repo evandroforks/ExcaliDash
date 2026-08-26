@@ -278,9 +278,10 @@ export const registerDrawingListRoutes = (
         },
         // Exclude drawings already accessible via a shared collection
         ...(sharedColIds.length > 0 && {
-          NOT: {
-            collectionId: { in: sharedColIds },
-          },
+          OR: [
+            { collectionId: null },
+            { collectionId: { notIn: sharedColIds } },
+          ],
         }),
       };
       if (searchTerm) {
